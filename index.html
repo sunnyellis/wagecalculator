@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Philippine Team Wage Calculator with Holiday Pay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFBF00 0%, #FFD700 50%, #FFBF00 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #FFBF00, #FFD700);
+            padding: 20px;
+            border-radius: 10px;
+            color: #333;
+        }
+
+        .exchange-rate {
+            background: #87CEEB;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #FFBF00;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #FFBF00;
+        }
+
+        .btn {
+            background: #3366FF;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background: #2851CC;
+        }
+
+        .btn.active {
+            background: #87CEEB;
+        }
+
+        .shift-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shift-buttons .btn {
+            flex: 1;
+            min-width: 180px;
+            padding: 15px 12px;
+            text-align: center;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+
+        .calendar-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calendar {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #FFBF00;
+        }
+
+        .calendar-day.selected {
+            background: #3366FF;
+            color: white;
+        }
+
+        .calendar-day.other-month {
+            color: #ccc;
+        }
+
+        .calendar-day.holiday {
+            background: #ffebee;
+            border: 2px solid #e57373;
+            font-weight: bold;
+        }
+
+        .calendar-day.holiday.regular {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        .calendar-day.holiday.special {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            color: #e65100;
+        }
+
+        .calendar-day.holiday.selected {
+            background: #3366FF;
+            color: white;
+        }
+
+        .holiday-indicator {
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .holiday-legend {
+            background: #f0f8ff;
+            border: 2px solid #87ceeb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: 2px solid;
+        }
+
+        .legend-regular {
+            background: #e8f5e8;
+            border-color: #4caf50;
+        }
+
+        .legend-special {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .manual-hours {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .manual-hours .form-group {
+            margin-bottom: 10px;
+        }
+
+        .manual-hours input {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .manual-hours label {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .manual-hours .help-text {
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .toggle-section {
+            margin-top: 20px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #FFBF00;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #87CEEB;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        .toggle-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .breakdown {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #87CEEB;
+        }
+
+        .breakdown.show {
+            display: block;
+        }
+
+        .day-entry {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #FFBF00;
+        }
+
+        .conversion-display {
+            background: linear-gradient(45deg, #87CEEB, #ADD8E6);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .help-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .holiday-info {
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .holiday-info.special {
+            background: linear-gradient(45deg, #ff9800, #ffb74d);
+        }
+
+        .breakdown-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .breakdown-tab {
+            background: #ddd;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .breakdown-tab.active {
+            background: #87CEEB;
+            color: white;
+        }
+
+        .breakdown-content {
+            display: none;
+        }
+
+        .breakdown-content.active {
+            display: block;
+        }
+
+        .fix-notice {
+            background: linear-gradient(45deg, #28a745, #34ce57);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .manual-hours {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .shift-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇵🇭 Philippine Team Wage Calculator with Holiday Pay</h1>
+            <p>Complete payroll calculations with official Philippine holidays and differentials</p>
+            <button class="btn" id="startOverBtn" style="background: #dc3545; margin-top: 15px; font-size: 16px; padding: 12px 24px;">
+                🔄 Start Over
+            </button>
+        </div>
+
+
+
+        <div class="exchange-rate">
+            <h3>💱 Current Exchange Rate (Philippines)</h3>
+            <p><strong>1 USD = <span id="exchangeRateValue">55.77</span> PHP</strong></p>
+            <p><small>Last updated: <span id="lastUpdated">June 9, 2025 (Philippine Time)</span></small></p>
+            <button class="btn" id="updateRateBtn" style="background: #28a745; margin-top: 10px; font-size: 14px; padding: 8px 16px;">
+                🔄 Update Exchange Rate
+            </button>
+        </div>
+
+        <div class="holiday-legend">
+            <h3>🎉 Philippine Holiday Legend</h3>
+            <div class="legend-item">
+                <div class="legend-color legend-regular"></div>
+                <span><strong>Regular Holiday:</strong> 200% of enhanced rate (base + differentials) + 30% overtime if applicable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-special"></div>
+                <span><strong>Special Non-Working Holiday:</strong> 130% of enhanced rate (base + differentials) + 30% overtime if applicable</span>
+            </div>
+            <p><small>All holidays are based on official Presidential Proclamations for 2025</small></p>
+        </div>
+
+        <div class="section">
+            <h3>👤 Agent Information</h3>
+            <div class="form-group">
+                <label for="agentName">👨‍💼 Agent Name</label>
+                <input type="text" id="agentName" placeholder="Enter agent name...">
+            </div>
+            
+            <div class="form-group">
+                <label for="hourlyWage">💰 Hourly Wage (PHP)</label>
+                <input type="number" id="hourlyWage" placeholder="Enter hourly wage in PHP..." step="0.01">
+                <div class="help-text">Base hourly rate in Philippine Pesos</div>
+            </div>
+
+            <div class="conversion-display" id="usdConversion" style="display: none;">
+                <h4>Equivalent in USD: $<span id="usdAmount">0.00</span></h4>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>⏰ Shift Selection (All times in PHT)</h3>
+            <div class="shift-buttons">
+                <button class="btn" data-shift="main">Main:<br>9P - 6A PHT</button>
+                <button class="btn" data-shift="early-main">Early Main:<br>7P - 4A PHT</button>
+                <button class="btn" data-shift="late">Late:<br>3A - 12N PHT</button>
+                <button class="btn" data-shift="overnight">Overnight:<br>11:30A - 9:30P PHT</button>
+                <button class="btn" data-shift="summer-late">Summer Late:<br>4:30A - 12N PHT*</button>
+            </div>
+            <div class="help-text">*Summer Late: Sundays and Mondays are 3:30A - 12N PHT</div>
+        </div>
+
+        <div class="section">
+            <h3>📅 Schedule Calendar with Philippine Holidays</h3>
+            <div class="calendar-section">
+                <div class="calendar">
+                    <div class="calendar-header">
+                        <button class="btn" id="prevMonth">&lt;</button>
+                        <h4 id="currentMonth">June 2025</h4>
+                        <button class="btn" id="nextMonth">&gt;</button>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <button class="btn" id="clearDatesBtn" style="background: #ffc107; color: #333; font-size: 14px; padding: 8px 16px;">
+                            🗑️ Clear All Selected Dates
+                        </button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar days will be generated here -->
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="toggle-container" style="margin-bottom: 10px;">
+                        <div class="toggle-switch" id="selectedDatesToggle">
+                            <div class="toggle-slider"></div>
+                        </div>
+                        <div class="toggle-label" id="selectedDatesLabel" style="cursor: pointer;">📋 Show Selected Dates</div>
+                    </div>
+                    <div id="selectedDates" style="max-height: 300px; overflow-y: auto; background: white; padding: 15px; border-radius: 6px; border: 2px solid #ddd; display: none;">
+                        <p>Click calendar dates to add shifts</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="toggle-container" style="margin-bottom: 20px;">
+                <div class="toggle-switch" id="manualHoursToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+                <div class="toggle-label" id="manualHoursLabel" style="cursor: pointer;">🕐 Show Manual Hours Entry</div>
+            </div>
+            <div id="manualHoursSection" style="display: none;">
+                <div class="manual-hours">
+                <div class="form-group">
+                    <label for="manualRegular">⏱️ Manual Regular Hours</label>
+                    <input type="number" id="manualRegular" placeholder="0" step="0.25" min="0">
+                    <div class="help-text">Base hourly rate</div>
+                    <input type="text" id="manualRegularNote" placeholder="Note (optional)" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="manualOvernight">🌙 Manual Overnight Hours</label>
+                    <input type="number" id="manualOvernight" placeholder="0" step="0.25" min="0">
+                    <div class="help-text">Base rate +10% differential</div>
+                    <input type="text" id="manualOvernightNote" placeholder="Note (optional)" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="manualOvertime">🕐 Manual Overtime Hours</label>
+                    <input type="number" id="manualOvertime" placeholder="0" step="0.25" min="0">
+                    <div class="help-text">Base rate +25% differential</div>
+                    <input type="text" id="manualOvertimeNote" placeholder="Note (optional)" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="manualBoth">🌙⏱️ Manual Overnight + Overtime</label>
+                    <input type="number" id="manualBoth" placeholder="0" step="0.25" min="0">
+                    <div class="help-text">Base rate +35% differential</div>
+                    <input type="text" id="manualBothNote" placeholder="Note (optional)" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="manualHoliday">🎉 Manual Holiday Hours</label>
+                    <input type="number" id="manualHoliday" placeholder="0" step="0.25" min="0">
+                    <div class="help-text">Applied to enhanced rate</div>
+                    <select id="manualHolidayType" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                        <option value="regular">Regular Holiday (200%)</option>
+                        <option value="special">Special Holiday (130%)</option>
+                    </select>
+                    <select id="manualHolidayDifferential" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                        <option value="regular">Regular Hours</option>
+                        <option value="overnight">Night Differential (+10%)</option>
+                        <option value="overtime">Overtime (+25%)</option>
+                        <option value="both">Night + Overtime (+35%)</option>
+                    </select>
+                    <input type="text" id="manualHolidayNote" placeholder="Note (optional)" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <button class="btn" id="calculateWages" style="background: #87CEEB; font-size: 18px; padding: 15px 30px; width: 100%; margin-bottom: 20px;">
+                💰 Calculate Total Wages
+            </button>
+            
+            <div id="wageResults" style="display: none;">
+                <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px; color: #856404;">
+                    <strong>⚠️ Important Notice:</strong> Due to fluctuations in exchange rates, these totals are an approximation
+                </div>
+                
+                <div class="conversion-display">
+                    <h3>💼 <span id="resultAgentName">Agent</span> - Total Wages</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; text-align: left;">
+                        <div>
+                            <h4>🇵🇭 Philippine Pesos</h4>
+                            <div style="font-size: 24px; font-weight: bold;">₱<span id="totalPHP">0.00</span></div>
+                        </div>
+                        <div>
+                            <h4>🇺🇸 US Dollars</h4>
+                            <div style="font-size: 24px; font-weight: bold;">$<span id="totalUSD">0.00</span></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.3);">
+                        <strong>📅 Pay Period: <span id="payPeriod">Not calculated</span></strong><br>
+                        <small style="margin-top: 10px; display: block; font-style: italic;">
+                            ℹ️ Variations of up to 2,000 PHP from an existing payslip are considered acceptable deviations.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toggle-section">
+            <div class="toggle-container">
+                <div class="toggle-switch" id="toggleSwitch">
+                    <div class="toggle-slider"></div>
+                </div>
+                <div class="toggle-label" id="toggleLabel">📊 Show Daily Breakdown</div>
+            </div>
+            <div class="breakdown" id="breakdown">
+                <h3>Work Breakdown</h3>
+                <div class="breakdown-tabs">
+                    <button class="breakdown-tab active" data-tab="shift">📋 By Shift</button>
+                    <button class="breakdown-tab" data-tab="date">📅 By Date</button>
+                </div>
+                <div class="breakdown-content active" id="shiftBreakdown">
+                    <div id="breakdownContent">
+                        <p>Add some shifts to see the breakdown</p>
+                    </div>
+                </div>
+                <div class="breakdown-content" id="dateBreakdown">
+                    <div id="dateBreakdownContent">
+                        <p>Add some shifts to see the date breakdown</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PHILIPPINE TIME CALCULATOR WITH CORRECTED HOLIDAY PAY DIFFERENTIALS
+        // Updated with fixed holiday pay calculation that applies to enhanced rates
+        
+        // State management
+        let selectedShift = null;
+        let selectedDates = [];
+        let currentYear = 2025;
+        let currentMonth = 5; // June (0-based)
+        let scheduleData = {};
+        let activeBreakdownTab = 'shift';
+        
+        // Updated exchange rate from June 2025
+        window.USD_TO_PHP = 55.77;
+        
+        // Philippine Holidays 2025 - Based on Official Proclamations
+        const philippineHolidays = {
+            // Regular Holidays (200% pay if working)
+            '2025-01-01': { name: 'New Year\'s Day', type: 'regular' },
+            '2025-04-01': { name: 'Eid\'l Fitr', type: 'regular' },
+            '2025-04-09': { name: 'Araw ng Kagitingan (Day of Valor)', type: 'regular' },
+            '2025-04-17': { name: 'Maundy Thursday', type: 'regular' },
+            '2025-04-18': { name: 'Good Friday', type: 'regular' },
+            '2025-05-01': { name: 'Labor Day', type: 'regular' },
+            '2025-06-06': { name: 'Eid\'l Adha', type: 'regular' },
+            '2025-06-12': { name: 'Independence Day', type: 'regular' },
+            '2025-08-31': { name: 'National Heroes Day', type: 'regular' },
+            '2025-11-30': { name: 'Bonifacio Day', type: 'regular' },
+            '2025-12-25': { name: 'Christmas Day', type: 'regular' },
+            '2025-12-30': { name: 'Rizal Day', type: 'regular' },
+            
+            // Special Non-Working Days (130% pay if working)
+            '2025-01-29': { name: 'Chinese New Year', type: 'special' },
+            '2025-02-25': { name: 'EDSA People Power Revolution Anniversary', type: 'special' },
+            '2025-04-19': { name: 'Black Saturday', type: 'special' },
+            '2025-05-12': { name: 'National & Local Elections', type: 'special' },
+            '2025-07-27': { name: 'Iglesia ni Cristo Founding Anniversary', type: 'special' },
+            '2025-10-31': { name: 'All Saints\' Day Eve', type: 'special' },
+            '2025-11-01': { name: 'All Saints\' Day', type: 'special' },
+            '2025-12-08': { name: 'Feast of the Immaculate Conception', type: 'special' },
+            '2025-12-24': { name: 'Christmas Eve', type: 'special' },
+            '2025-12-31': { name: 'Last Day of the Year', type: 'special' }
+        };
+        
+        // Shift definitions
+        const shifts = {
+            'main': { start: '21:00', end: '06:00', name: 'Main' },
+            'early-main': { start: '19:00', end: '04:00', name: 'Early Main' },
+            'late': { start: '03:00', end: '12:00', name: 'Late' },
+            'overnight': { start: '11:30', end: '21:30', name: 'Overnight' },
+            'summer-late': { start: '04:30', end: '12:00', name: 'Summer Late' }
+        };
+
+        // Event listeners
+        document.getElementById('hourlyWage').addEventListener('input', updateUSDConversion);
+        document.getElementById('agentName').addEventListener('input', updateCalculations);
+        document.getElementById('manualRegular').addEventListener('input', updateCalculations);
+        document.getElementById('manualOvernight').addEventListener('input', updateCalculations);
+        document.getElementById('manualOvertime').addEventListener('input', updateCalculations);
+        document.getElementById('manualBoth').addEventListener('input', updateCalculations);
+        document.getElementById('manualHoliday').addEventListener('input', updateCalculations);
+        document.getElementById('manualHolidayType').addEventListener('change', updateCalculations);
+        document.getElementById('manualHolidayDifferential').addEventListener('change', updateCalculations);
+        document.getElementById('manualRegularNote').addEventListener('input', updateCalculations);
+        document.getElementById('manualOvernightNote').addEventListener('input', updateCalculations);
+        document.getElementById('manualOvertimeNote').addEventListener('input', updateCalculations);
+        document.getElementById('manualBothNote').addEventListener('input', updateCalculations);
+        document.getElementById('manualHolidayNote').addEventListener('input', updateCalculations);
+        
+        // Shift selection
+        document.querySelectorAll('[data-shift]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-shift]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedShift = this.dataset.shift;
+            });
+        });
+
+        // Calendar navigation
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        });
+
+        // Toggle breakdown
+        document.getElementById('toggleSwitch').addEventListener('click', function() {
+            const breakdown = document.getElementById('breakdown');
+            const toggleLabel = document.getElementById('toggleLabel');
+            
+            breakdown.classList.toggle('show');
+            this.classList.toggle('active');
+            
+            toggleLabel.textContent = breakdown.classList.contains('show') ? 
+                '📊 Hide Daily Breakdown' : '📊 Show Daily Breakdown';
+        });
+
+        document.getElementById('toggleLabel').addEventListener('click', function() {
+            document.getElementById('toggleSwitch').click();
+        });
+
+        // Breakdown tabs
+        document.querySelectorAll('.breakdown-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Update active tab
+                document.querySelectorAll('.breakdown-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active content
+                document.querySelectorAll('.breakdown-content').forEach(c => c.classList.remove('active'));
+                if (targetTab === 'shift') {
+                    document.getElementById('shiftBreakdown').classList.add('active');
+                } else {
+                    document.getElementById('dateBreakdown').classList.add('active');
+                }
+                
+                activeBreakdownTab = targetTab;
+                updateCalculations(); // Refresh the content
+            });
+        });
+
+        // Start Over button
+        document.getElementById('startOverBtn').addEventListener('click', startOver);
+
+        // Clear Dates button
+        document.getElementById('clearDatesBtn').addEventListener('click', clearAllDates);
+
+        // Selected Dates toggle
+        document.getElementById('selectedDatesToggle').addEventListener('click', function() {
+            const section = document.getElementById('selectedDates');
+            const label = document.getElementById('selectedDatesLabel');
+            
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            this.classList.toggle('active');
+            
+            label.textContent = section.style.display === 'none' ? 
+                '📋 Show Selected Dates' : '📋 Hide Selected Dates';
+        });
+
+        document.getElementById('selectedDatesLabel').addEventListener('click', function() {
+            document.getElementById('selectedDatesToggle').click();
+        });
+
+        // Manual Hours toggle
+        document.getElementById('manualHoursToggle').addEventListener('click', function() {
+            const section = document.getElementById('manualHoursSection');
+            const label = document.getElementById('manualHoursLabel');
+            
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            this.classList.toggle('active');
+            
+            label.textContent = section.style.display === 'none' ? 
+                '🕐 Show Manual Hours Entry' : '🕐 Hide Manual Hours Entry';
+        });
+
+        document.getElementById('manualHoursLabel').addEventListener('click', function() {
+            document.getElementById('manualHoursToggle').click();
+        });
+
+        // Update Exchange Rate button
+        document.getElementById('updateRateBtn').addEventListener('click', updateExchangeRate);
+
+        // Calculate wages button
+        document.getElementById('calculateWages').addEventListener('click', calculateAndDisplayWages);
+
+        async function updateExchangeRate() {
+            const updateBtn = document.getElementById('updateRateBtn');
+            const originalText = updateBtn.textContent;
+            
+            updateBtn.textContent = '⏳ Updating...';
+            updateBtn.disabled = true;
+            
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Simulate current market rates around 55.77
+                const simulatedRates = [55.71, 55.77, 55.82, 55.69, 55.85, 55.74];
+                const newRate = simulatedRates[Math.floor(Math.random() * simulatedRates.length)];
+                
+                window.USD_TO_PHP = newRate;
+                document.getElementById('exchangeRateValue').textContent = newRate.toFixed(2);
+                
+                const now = new Date();
+                const options = { 
+                    timeZone: 'Asia/Manila',
+                    year: 'numeric',
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                const phtTime = now.toLocaleDateString('en-US', options) + ' (Philippine Time)';
+                document.getElementById('lastUpdated').textContent = phtTime;
+                
+                updateUSDConversion();
+                alert(`Exchange rate updated to 1 USD = ${newRate.toFixed(2)} PHP`);
+                
+            } catch (error) {
+                console.error('Error updating exchange rate:', error);
+                alert('Unable to update exchange rate. Please try again later.');
+            } finally {
+                updateBtn.textContent = originalText;
+                updateBtn.disabled = false;
+            }
+        }
+
+        function clearAllDates() {
+            scheduleData = {};
+            renderCalendar();
+            updateSelectedDatesDisplay();
+            updateCalculations();
+            alert('All selected dates have been cleared. Agent information and shift selection preserved.');
+        }
+
+        function startOver() {
+            // Clear all inputs and state
+            document.getElementById('agentName').value = '';
+            document.getElementById('hourlyWage').value = '';
+            document.getElementById('usdConversion').style.display = 'none';
+            
+            document.querySelectorAll('[data-shift]').forEach(btn => btn.classList.remove('active'));
+            selectedShift = null;
+            
+            scheduleData = {};
+            
+            document.getElementById('manualRegular').value = '';
+            document.getElementById('manualOvernight').value = '';
+            document.getElementById('manualOvertime').value = '';
+            document.getElementById('manualBoth').value = '';
+            document.getElementById('manualHoliday').value = '';
+            document.getElementById('manualHolidayType').value = 'regular';
+            document.getElementById('manualHolidayDifferential').value = 'regular';
+            
+            document.getElementById('manualRegularNote').value = '';
+            document.getElementById('manualOvernightNote').value = '';
+            document.getElementById('manualOvertimeNote').value = '';
+            document.getElementById('manualBothNote').value = '';
+            document.getElementById('manualHolidayNote').value = '';
+            
+            document.getElementById('wageResults').style.display = 'none';
+            
+            const breakdown = document.getElementById('breakdown');
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            const toggleLabel = document.getElementById('toggleLabel');
+            breakdown.classList.remove('show');
+            toggleSwitch.classList.remove('active');
+            toggleLabel.textContent = '📊 Show Daily Breakdown';
+            
+            // Reset other toggles to default closed state
+            const selectedDatesSection = document.getElementById('selectedDates');
+            const selectedDatesToggle = document.getElementById('selectedDatesToggle');
+            const selectedDatesLabel = document.getElementById('selectedDatesLabel');
+            selectedDatesSection.style.display = 'none';
+            selectedDatesToggle.classList.remove('active');
+            selectedDatesLabel.textContent = '📋 Show Selected Dates';
+            
+            const manualHoursSection = document.getElementById('manualHoursSection');
+            const manualHoursToggle = document.getElementById('manualHoursToggle');
+            const manualHoursLabel = document.getElementById('manualHoursLabel');
+            manualHoursSection.style.display = 'none';
+            manualHoursToggle.classList.remove('active');
+            manualHoursLabel.textContent = '🕐 Show Manual Hours Entry';
+            
+            document.getElementById('breakdownContent').innerHTML = '<p>Add some shifts to see the breakdown</p>';
+            document.getElementById('dateBreakdownContent').innerHTML = '<p>Add some shifts to see the date breakdown</p>';
+            
+            updateSelectedDatesDisplay();
+            renderCalendar();
+            
+            alert('Calculator has been reset. All information cleared.');
+        }
+
+        function updateUSDConversion() {
+            const phpWage = parseFloat(document.getElementById('hourlyWage').value);
+            const usdDiv = document.getElementById('usdConversion');
+            const usdAmount = document.getElementById('usdAmount');
+            
+            if (phpWage && phpWage > 0) {
+                const usdValue = (phpWage / window.USD_TO_PHP).toFixed(2);
+                usdAmount.textContent = usdValue;
+                usdDiv.style.display = 'block';
+            } else {
+                usdDiv.style.display = 'none';
+            }
+            
+            updateCalculations();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthHeader = document.getElementById('currentMonth');
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            monthHeader.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            grid.innerHTML = '';
+
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const header = document.createElement('div');
+                header.textContent = day;
+                header.style.fontWeight = 'bold';
+                header.style.background = '#f0f0f0';
+                header.style.border = 'none';
+                header.style.cursor = 'default';
+                grid.appendChild(header);
+            });
+
+            const daysInMonth = getDaysInMonth(currentYear, currentMonth + 1);
+            const daysInPrevMonth = currentMonth === 0 ? getDaysInMonth(currentYear - 1, 12) : getDaysInMonth(currentYear, currentMonth);
+            const firstDay = getFirstDayOfMonth(currentYear, currentMonth + 1);
+
+            // Add previous month's trailing days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day other-month';
+                const prevMonthDay = daysInPrevMonth - i;
+                day.textContent = prevMonthDay;
+                
+                let prevYear = currentYear;
+                let prevMonth;
+                if (currentMonth === 0) {
+                    prevMonth = 12;
+                    prevYear = currentYear - 1;
+                } else {
+                    prevMonth = currentMonth;
+                }
+                
+                const dateKey = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(prevMonthDay).padStart(2, '0')}`;
+                
+                if (scheduleData[dateKey]) {
+                    day.classList.add('selected');
+                }
+                
+                day.addEventListener('click', () => toggleDate(dateKey, day, prevYear, prevMonth, prevMonthDay));
+                grid.appendChild(day);
+            }
+
+            // Add current month's days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Check if this date is a Philippine holiday
+                if (philippineHolidays[dateKey]) {
+                    const holiday = philippineHolidays[dateKey];
+                    dayElement.classList.add('holiday', holiday.type);
+                    dayElement.title = `${holiday.name} (${holiday.type === 'regular' ? 'Regular Holiday - 200% of enhanced rate' : 'Special Non-Working - 130% of enhanced rate'})`;
+                    
+                    const indicator = document.createElement('div');
+                    indicator.className = 'holiday-indicator';
+                    indicator.textContent = holiday.type === 'regular' ? 'R' : 'S';
+                    dayElement.appendChild(indicator);
+                }
+                
+                if (scheduleData[dateKey]) {
+                    dayElement.classList.add('selected');
+                }
+                
+                dayElement.addEventListener('click', () => toggleDate(dateKey, dayElement, currentYear, currentMonth + 1, day));
+                grid.appendChild(dayElement);
+            }
+
+            // Add next month's leading days
+            const totalCells = grid.children.length;
+            const remainingCells = 42 - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.textContent = day;
+                
+                let nextYear = currentYear;
+                let nextMonth;
+                if (currentMonth === 11) {
+                    nextMonth = 1;
+                    nextYear = currentYear + 1;
+                } else {
+                    nextMonth = currentMonth + 2;
+                }
+                
+                const dateKey = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                if (scheduleData[dateKey]) {
+                    dayElement.classList.add('selected');
+                }
+                
+                dayElement.addEventListener('click', () => toggleDate(dateKey, dayElement, nextYear, nextMonth, day));
+                grid.appendChild(dayElement);
+            }
+        }
+
+        function getDaysInMonth(year, month) {
+            const daysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            if (month === 2 && isLeapYear(year)) {
+                return 29;
+            }
+            return daysInMonths[month - 1];
+        }
+
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        function getFirstDayOfMonth(year, month) {
+            let q = 1;
+            let m = month;
+            let y = year;
+            
+            if (m < 3) {
+                m += 12;
+                y -= 1;
+            }
+            
+            const k = y % 100;
+            const j = Math.floor(y / 100);
+            
+            const h = (q + Math.floor((13 * (m + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - 2 * j) % 7;
+            
+            return (h + 6) % 7;
+        }
+
+        function toggleDate(dateKey, element, year, month, day) {
+            if (!selectedShift) {
+                alert('Please select a shift first!');
+                return;
+            }
+
+            if (scheduleData[dateKey]) {
+                delete scheduleData[dateKey];
+                element.classList.remove('selected');
+            } else {
+                let shiftData = { ...shifts[selectedShift] };
+                if (selectedShift === 'summer-late') {
+                    let q = day;
+                    let m = month;
+                    let y = year;
+                    
+                    if (m < 3) {
+                        m += 12;
+                        y -= 1;
+                    }
+                    
+                    const k = y % 100;
+                    const j = Math.floor(y / 100);
+                    
+                    const h = (q + Math.floor((13 * (m + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - 2 * j) % 7;
+                    const dayOfWeek = (h + 6) % 7;
+                    
+                    if (dayOfWeek === 0 || dayOfWeek === 1) {
+                        shiftData.start = '03:30';
+                    }
+                }
+                
+                scheduleData[dateKey] = {
+                    shift: selectedShift,
+                    shiftName: shiftData.name,
+                    start: shiftData.start,
+                    end: shiftData.end,
+                    holiday: philippineHolidays[dateKey] || null
+                };
+                element.classList.add('selected');
+            }
+            
+            updateSelectedDatesDisplay();
+            updateCalculations();
+        }
+
+        function updateSelectedDatesDisplay() {
+            const container = document.getElementById('selectedDates');
+            
+            if (Object.keys(scheduleData).length === 0) {
+                container.innerHTML = '<p>Click calendar dates to add shifts</p>';
+                return;
+            }
+
+            const sortedDates = Object.keys(scheduleData).sort();
+            let html = '';
+            
+            sortedDates.forEach(dateKey => {
+                const data = scheduleData[dateKey];
+                const [year, month, day] = dateKey.split('-').map(Number);
+                
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                
+                let q = day;
+                let m = month;
+                let y = year;
+                
+                if (m < 3) {
+                    m += 12;
+                    y -= 1;
+                }
+                
+                const k = y % 100;
+                const j = Math.floor(y / 100);
+                
+                const h = (q + Math.floor((13 * (m + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - 2 * j) % 7;
+                const dayOfWeek = (h + 6) % 7;
+                
+                const formattedDate = `${dayNames[dayOfWeek]} ${monthNames[month - 1]} ${day}`;
+                
+                let holidayInfo = '';
+                if (data.holiday) {
+                    const payRate = data.holiday.type === 'regular' ? '200%' : '130%';
+                    holidayInfo = `<br><span style="color: ${data.holiday.type === 'regular' ? '#2e7d32' : '#e65100'}; font-weight: bold;">🎉 ${data.holiday.name} (${payRate} of enhanced rate)</span>`;
+                }
+                
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f8f9fa; margin-bottom: 5px; border-radius: 4px;">
+                        <span><strong>${formattedDate}</strong>: ${data.shiftName} (${data.start} - ${data.end})${holidayInfo}</span>
+                        <button onclick="removeDate('${dateKey}')" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">×</button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function removeDate(dateKey) {
+            delete scheduleData[dateKey];
+            renderCalendar();
+            updateSelectedDatesDisplay();
+            updateCalculations();
+        }
+
+        function calculateShiftHours(start, end, dateKey = null, primaryPayPeriod = null) {
+            const [startHour, startMin] = start.split(':').map(Number);
+            const [endHour, endMin] = end.split(':').map(Number);
+            
+            let startTime = startHour + startMin / 60;
+            let endTime = endHour + endMin / 60;
+            
+            if (endTime <= startTime) {
+                endTime += 24;
+            }
+            
+            let actualStartTime = startTime;
+            let actualEndTime = endTime;
+            let truncated = false;
+            let truncationType = null;
+            
+            if (dateKey && primaryPayPeriod && primaryPayPeriod !== "No dates selected") {
+                const truncationResult = applyPayPeriodTruncation(dateKey, startTime, endTime, primaryPayPeriod);
+                actualStartTime = truncationResult.newStartTime;
+                actualEndTime = truncationResult.newEndTime;
+                truncated = truncationResult.truncated;
+                truncationType = truncationResult.truncationType;
+            }
+            
+            const totalHours = actualEndTime - actualStartTime;
+            
+            let paidHours;
+            if (truncated && totalHours <= 4) {
+                paidHours = Math.max(0, totalHours);
+            } else if (totalHours > 4) {
+                paidHours = Math.max(0, totalHours - 1);
+            } else {
+                paidHours = Math.max(0, totalHours);
+            }
+            
+            return { 
+                totalHours, 
+                paidHours, 
+                truncated, 
+                truncationType,
+                actualStartTime,
+                actualEndTime
+            };
+        }
+
+        function applyPayPeriodTruncation(dateKey, startTime, endTime, primaryPayPeriod) {
+            const [year, month, day] = dateKey.split('-').map(Number);
+            
+            const payPeriodParts = primaryPayPeriod.split(' ');
+            const payPeriodYear = parseInt(payPeriodParts[1]);
+            const payPeriodMonthName = payPeriodParts[0];
+            const payPeriodRange = payPeriodParts[2];
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const payPeriodMonth = monthNames.indexOf(payPeriodMonthName) + 1;
+            
+            let periodStartDay, periodEndDay;
+            if (payPeriodRange.startsWith('1st-15th')) {
+                periodStartDay = 1;
+                periodEndDay = 15;
+            } else {
+                periodStartDay = 16;
+                periodEndDay = getDaysInMonth(payPeriodYear, payPeriodMonth);
+            }
+            
+            const shiftStartDate = dateToDays(year, month, day);
+            let shiftEndDate = shiftStartDate;
+            if (endTime <= startTime) {
+                shiftEndDate = shiftStartDate + 1;
+            }
+            
+            const periodStartDate = dateToDays(payPeriodYear, payPeriodMonth, periodStartDay);
+            const periodEndDate = dateToDays(payPeriodYear, payPeriodMonth, periodEndDay);
+            
+            const shiftStartAbs = shiftStartDate * 24 + startTime;
+            const shiftEndAbs = shiftEndDate * 24 + endTime;
+            const periodStartAbs = periodStartDate * 24;
+            const periodEndAbs = (periodEndDate + 1) * 24;
+            
+            let newStartTime = startTime;
+            let newEndTime = endTime;
+            let truncated = false;
+            let truncationType = null;
+            
+            if (shiftEndAbs <= periodStartAbs || shiftStartAbs >= periodEndAbs) {
+                truncated = true;
+                truncationType = 'complete';
+                newStartTime = startTime;
+                newEndTime = startTime;
+                return { newStartTime, newEndTime, truncated, truncationType };
+            }
+            
+            if (shiftStartAbs < periodStartAbs) {
+                truncated = true;
+                truncationType = 'front';
+                
+                const truncatedHours = periodStartAbs - shiftStartAbs;
+                
+                if (endTime <= startTime) {
+                    newStartTime = 0;
+                } else {
+                    newStartTime = startTime + truncatedHours;
+                }
+            }
+            
+            if (shiftEndAbs > periodEndAbs) {
+                truncated = true;
+                if (truncationType === 'front') {
+                    truncationType = 'both';
+                } else {
+                    truncationType = 'back';
+                }
+                
+                const truncatedHours = shiftEndAbs - periodEndAbs;
+                newEndTime = endTime - truncatedHours;
+                
+                if (newEndTime < 0) {
+                    newEndTime = 0;
+                }
+            }
+            
+            return { newStartTime, newEndTime, truncated, truncationType };
+        }
+
+        function formatTime(decimalHours) {
+            const adjustedHours = decimalHours % 24;
+            const hours = Math.floor(adjustedHours);
+            const minutes = Math.round((adjustedHours - hours) * 60);
+            
+            const formattedHours = hours.toString().padStart(2, '0');
+            const formattedMinutes = minutes.toString().padStart(2, '0');
+            
+            return `${formattedHours}:${formattedMinutes}`;
+        }
+
+        function dateToDays(year, month, day) {
+            let totalDays = 0;
+            
+            for (let y = 1; y < year; y++) {
+                totalDays += isLeapYear(y) ? 366 : 365;
+            }
+            
+            for (let m = 1; m < month; m++) {
+                totalDays += getDaysInMonth(year, m);
+            }
+            
+            totalDays += day - 1;
+            
+            return totalDays;
+        }
+
+        function calculateOvernightHours(startTime, endTime, paidHours) {
+            const overnightStart = 22;
+            const overnightEnd = 6;
+            
+            let overnightHours = 0;
+            
+            let adjustedEndTime = endTime;
+            if (endTime === 24) {
+                adjustedEndTime = 0;
+            }
+            
+            if (adjustedEndTime > 24 || (adjustedEndTime <= startTime)) {
+                let actualEndTime = adjustedEndTime > 24 ? adjustedEndTime - 24 : adjustedEndTime;
+                
+                if (startTime >= overnightStart) {
+                    overnightHours += 24 - startTime;
+                } else if (startTime < overnightStart) {
+                    overnightHours += 24 - overnightStart;
+                }
+                
+                if (actualEndTime <= overnightEnd && actualEndTime > 0) {
+                    overnightHours += actualEndTime;
+                } else if (actualEndTime > overnightEnd) {
+                    overnightHours += overnightEnd;
+                }
+            } else {
+                if (startTime < 24 && adjustedEndTime > overnightStart) {
+                    const eveningStart = Math.max(startTime, overnightStart);
+                    const eveningEnd = Math.min(adjustedEndTime, 24);
+                    if (eveningEnd > eveningStart) {
+                        overnightHours += eveningEnd - eveningStart;
+                    }
+                }
+                
+                if (startTime < overnightEnd) {
+                    const earlyEnd = Math.min(adjustedEndTime, overnightEnd);
+                    if (earlyEnd > startTime) {
+                        overnightHours += earlyEnd - startTime;
+                    }
+                }
+            }
+            
+            const totalShiftHours = endTime > startTime ? endTime - startTime : (endTime + 24 - startTime);
+            if (totalShiftHours > 4) {
+                if (overnightHours > 0) {
+                    overnightHours = Math.max(0, overnightHours - 1);
+                }
+            }
+            
+            return Math.min(overnightHours, paidHours);
+        }
+
+        // NEW FUNCTION: Calculate holiday pay with proper differentials
+        function calculateHolidayPayComponents(paidHours, actualStartTime, actualEndTime, holidayType, hourlyWage) {
+            // First, determine what the normal differentials would be
+            const overnightHours = calculateOvernightHours(actualStartTime, actualEndTime, paidHours);
+            const overtimeHours = Math.max(0, paidHours - 8);
+            const regularHours = paidHours - overtimeHours;
+            
+            const overnightOvertimeHours = Math.min(overnightHours, overtimeHours);
+            const regularOvernightHours = overnightHours - overnightOvertimeHours;
+            const regularOvertimeHours = overtimeHours - overnightOvertimeHours;
+            const finalRegularHours = regularHours - regularOvernightHours;
+
+            // Calculate what each component would pay normally, then apply holiday multiplier
+            const holidayMultiplier = holidayType === 'regular' ? 2.00 : 1.30;
+            
+            const regularHolidayPay = finalRegularHours * hourlyWage * holidayMultiplier;
+            const overtimeHolidayPay = regularOvertimeHours * (hourlyWage * 1.25) * holidayMultiplier;
+            const overnightHolidayPay = regularOvernightHours * (hourlyWage * 1.10) * holidayMultiplier;
+            const bothHolidayPay = overnightOvertimeHours * (hourlyWage * 1.35) * holidayMultiplier;
+            
+            // For overtime on holidays, add additional 30% overtime differential
+            const additionalOvertimePay = overtimeHours * hourlyWage * 0.30;
+            
+            return {
+                regularHolidayPay,
+                overtimeHolidayPay,
+                overnightHolidayPay,
+                bothHolidayPay,
+                additionalOvertimePay,
+                totalHolidayPay: regularHolidayPay + overtimeHolidayPay + overnightHolidayPay + bothHolidayPay + additionalOvertimePay,
+                breakdown: {
+                    finalRegularHours,
+                    regularOvertimeHours,
+                    regularOvernightHours,
+                    overnightOvertimeHours,
+                    overtimeHours
+                }
+            };
+        }
+
+        function updateCalculations() {
+            const agentName = document.getElementById('agentName').value;
+            const hourlyWage = parseFloat(document.getElementById('hourlyWage').value) || 0;
+            const manualRegular = parseFloat(document.getElementById('manualRegular').value) || 0;
+            const manualOvernight = parseFloat(document.getElementById('manualOvernight').value) || 0;
+            const manualOvertime = parseFloat(document.getElementById('manualOvertime').value) || 0;
+            const manualBoth = parseFloat(document.getElementById('manualBoth').value) || 0;
+            const manualHoliday = parseFloat(document.getElementById('manualHoliday').value) || 0;
+            const manualHolidayType = document.getElementById('manualHolidayType').value;
+            const manualHolidayDifferential = document.getElementById('manualHolidayDifferential').value;
+
+            if (!agentName || hourlyWage <= 0) {
+                document.getElementById('breakdownContent').innerHTML = '<p>Please enter agent name and hourly wage to see calculations</p>';
+                document.getElementById('dateBreakdownContent').innerHTML = '<p>Please enter agent name and hourly wage to see calculations</p>';
+                return;
+            }
+
+            let breakdown = [];
+            let dateBreakdown = [];
+            let totalRegularHours = 0;
+            let totalOvertimeHours = 0;
+            let totalOvernightHours = 0;
+            let totalBothHours = 0;
+            let totalHolidayPay = 0;
+
+            const sortedDates = Object.keys(scheduleData).sort();
+            const primaryPayPeriod = determinePayPeriod();
+            
+            // Calculate scheduled shifts
+            sortedDates.forEach(dateKey => {
+                const data = scheduleData[dateKey];
+                const shiftCalc = calculateShiftHours(data.start, data.end, dateKey, primaryPayPeriod);
+                const { totalHours, paidHours, actualStartTime, actualEndTime, truncated, truncationType } = shiftCalc;
+                
+                let finalRegularHours = 0;
+                let finalOvertimeHours = 0;
+                let finalOvernightHours = 0;
+                let finalBothHours = 0;
+                let dayHolidayPay = 0;
+
+                // Check if this is a holiday
+                if (data.holiday) {
+                    // Use new holiday pay calculation
+                    const holidayPayCalc = calculateHolidayPayComponents(paidHours, actualStartTime, actualEndTime, data.holiday.type, hourlyWage);
+                    dayHolidayPay = holidayPayCalc.totalHolidayPay;
+                    totalHolidayPay += dayHolidayPay;
+                } else {
+                    // Normal working day calculations
+                    const overnightHours = calculateOvernightHours(actualStartTime, actualEndTime, paidHours);
+                    const overtimeHours = Math.max(0, paidHours - 8);
+                    const regularHours = paidHours - overtimeHours;
+                    
+                    const overnightOvertimeHours = Math.min(overnightHours, overtimeHours);
+                    const regularOvernightHours = overnightHours - overnightOvertimeHours;
+                    const regularOvertimeHours = overtimeHours - overnightOvertimeHours;
+                    finalRegularHours = regularHours - regularOvernightHours;
+
+                    finalOvertimeHours = regularOvertimeHours;
+                    finalOvernightHours = regularOvernightHours;
+                    finalBothHours = overnightOvertimeHours;
+
+                    totalRegularHours += finalRegularHours;
+                    totalOvertimeHours += finalOvertimeHours;
+                    totalOvernightHours += finalOvernightHours;
+                    totalBothHours += finalBothHours;
+                }
+
+                const [year, month, day] = dateKey.split('-').map(Number);
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                
+                let q = day;
+                let m = month;
+                let y = year;
+                
+                if (m < 3) {
+                    m += 12;
+                    y -= 1;
+                }
+                
+                const k = y % 100;
+                const j = Math.floor(y / 100);
+                
+                const h = (q + Math.floor((13 * (m + 1)) / 5) + k + Math.floor(k / 4) + Math.floor(j / 4) - 2 * j) % 7;
+                const dayOfWeek = (h + 6) % 7;
+                
+                const formattedDate = `${dayNames[dayOfWeek]} ${monthNames[month - 1]} ${day}`;
+
+                let breakdownText = `<strong>${formattedDate}</strong>: ${data.shiftName} (${data.start} - ${data.end})`;
+                
+                if (data.holiday) {
+                    const payRate = data.holiday.type === 'regular' ? '200%' : '130%';
+                    breakdownText += `<br><span style="color: ${data.holiday.type === 'regular' ? '#2e7d32' : '#e65100'}; font-weight: bold;">🎉 ${data.holiday.name} (${payRate} of enhanced rate)</span>`;
+                }
+                
+                if (truncated) {
+                    const newStart = formatTime(actualStartTime);
+                    const newEnd = formatTime(actualEndTime);
+                    breakdownText += `<br><span style="color: #dc3545; font-weight: bold;">⚠️ TRUNCATED</span> to (${newStart} - ${newEnd}) for pay period`;
+                }
+                
+                breakdownText += `<br>Total Hours: ${paidHours.toFixed(2)}`;
+                
+                if (data.holiday) {
+                    breakdownText += `, Holiday Pay: ₱${dayHolidayPay.toFixed(2)} (enhanced rate × ${data.holiday.type === 'regular' ? '200%' : '130%'})`;
+                } else {
+                    if (finalRegularHours > 0) breakdownText += `, Regular: ${finalRegularHours.toFixed(2)} (base rate)`;
+                    if (finalOvertimeHours > 0) breakdownText += `, Overtime: ${finalOvertimeHours.toFixed(2)} (+25%)`;
+                    if (finalOvernightHours > 0) breakdownText += `, Overnight: ${finalOvernightHours.toFixed(2)} (+10%)`;
+                    if (finalBothHours > 0) breakdownText += `, Both: ${finalBothHours.toFixed(2)} (+35%)`;
+                }
+
+                breakdown.push(`<div class="day-entry">${breakdownText}</div>`);
+                
+                // Create date breakdown entry
+                let dayTotalPHP = 0;
+                if (data.holiday) {
+                    dayTotalPHP = dayHolidayPay;
+                } else {
+                    const regularPay = finalRegularHours * hourlyWage;
+                    const overtimePay = finalOvertimeHours * hourlyWage * 1.25;
+                    const overnightPay = finalOvernightHours * hourlyWage * 1.10;
+                    const bothPay = finalBothHours * hourlyWage * 1.35;
+                    dayTotalPHP = regularPay + overtimePay + overnightPay + bothPay;
+                }
+                
+                const dayTotalUSD = dayTotalPHP / window.USD_TO_PHP;
+
+                let dateBreakdownText = `<strong>${formattedDate}</strong>: ${data.shiftName} (${data.start} - ${data.end})`;
+                
+                if (data.holiday) {
+                    const payRate = data.holiday.type === 'regular' ? '200%' : '130%';
+                    dateBreakdownText += `<br><span style="color: ${data.holiday.type === 'regular' ? '#2e7d32' : '#e65100'}; font-weight: bold;">🎉 ${data.holiday.name} (${payRate} of enhanced rate)</span>`;
+                }
+                
+                if (truncated) {
+                    const newStart = formatTime(actualStartTime);
+                    const newEnd = formatTime(actualEndTime);
+                    dateBreakdownText += `<br><span style="color: #dc3545; font-weight: bold;">⚠️ TRUNCATED</span> to (${newStart} - ${newEnd}) for pay period`;
+                }
+                
+                dateBreakdownText += `<br><strong>Daily Earnings:</strong> ₱${dayTotalPHP.toFixed(2)} / $${dayTotalUSD.toFixed(2)}`;
+                dateBreakdownText += `<br>Hours: ${paidHours.toFixed(2)} total`;
+
+                if (data.holiday) {
+                    dateBreakdownText += ` • Holiday pay with proper differentials applied`;
+                } else {
+                    if (finalRegularHours > 0) dateBreakdownText += ` • ${finalRegularHours.toFixed(2)} regular`;
+                    if (finalOvertimeHours > 0) dateBreakdownText += ` • ${finalOvertimeHours.toFixed(2)} overtime`;
+                    if (finalOvernightHours > 0) dateBreakdownText += ` • ${finalOvernightHours.toFixed(2)} overnight`;
+                    if (finalBothHours > 0) dateBreakdownText += ` • ${finalBothHours.toFixed(2)} both`;
+                }
+
+                dateBreakdown.push({
+                    dateKey: dateKey,
+                    formattedDate: formattedDate,
+                    content: `<div class="day-entry">${dateBreakdownText}</div>`,
+                    totalPHP: dayTotalPHP,
+                    totalUSD: dayTotalUSD
+                });
+            });
+
+            // Add manual hours
+            totalRegularHours += manualRegular;
+            totalOvernightHours += manualOvernight;
+            totalOvertimeHours += manualOvertime;
+            totalBothHours += manualBoth;
+            
+            // Calculate manual holiday pay with proper differentials
+            if (manualHoliday > 0) {
+                let baseRate = hourlyWage;
+                
+                // Apply differential based on selection
+                switch(manualHolidayDifferential) {
+                    case 'overnight':
+                        baseRate = hourlyWage * 1.10;
+                        break;
+                    case 'overtime':
+                        baseRate = hourlyWage * 1.25;
+                        break;
+                    case 'both':
+                        baseRate = hourlyWage * 1.35;
+                        break;
+                    default:
+                        baseRate = hourlyWage;
+                }
+                
+                const holidayMultiplier = manualHolidayType === 'regular' ? 2.00 : 1.30;
+                const manualHolidayPay = manualHoliday * baseRate * holidayMultiplier;
+                
+                // Add overtime differential if it's overtime hours
+                if (manualHolidayDifferential === 'overtime' || manualHolidayDifferential === 'both') {
+                    const additionalOvertimePay = manualHoliday * hourlyWage * 0.30;
+                    totalHolidayPay += manualHolidayPay + additionalOvertimePay;
+                } else {
+                    totalHolidayPay += manualHolidayPay;
+                }
+            }
+
+            if (manualRegular > 0 || manualOvernight > 0 || manualOvertime > 0 || manualBoth > 0 || manualHoliday > 0) {
+                let manualText = '<strong>Manual Hours:</strong><br>';
+                const manualRegularNote = document.getElementById('manualRegularNote').value;
+                const manualOvernightNote = document.getElementById('manualOvernightNote').value;
+                const manualOvertimeNote = document.getElementById('manualOvertimeNote').value;
+                const manualBothNote = document.getElementById('manualBothNote').value;
+                const manualHolidayNote = document.getElementById('manualHolidayNote').value;
+                
+                let hasAnyHours = false;
+                
+                if (manualRegular > 0) {
+                    manualText += `Regular: ${manualRegular}`;
+                    if (manualRegularNote.trim()) {
+                        manualText += ` <span style="color: #666; font-style: italic;">(${manualRegularNote})</span>`;
+                    }
+                    hasAnyHours = true;
+                }
+                if (manualOvernight > 0) {
+                    manualText += `${hasAnyHours ? ', ' : ''}Overnight: ${manualOvernight}`;
+                    if (manualOvernightNote.trim()) {
+                        manualText += ` <span style="color: #666; font-style: italic;">(${manualOvernightNote})</span>`;
+                    }
+                    hasAnyHours = true;
+                }
+                if (manualOvertime > 0) {
+                    manualText += `${hasAnyHours ? ', ' : ''}Overtime: ${manualOvertime}`;
+                    if (manualOvertimeNote.trim()) {
+                        manualText += ` <span style="color: #666; font-style: italic;">(${manualOvertimeNote})</span>`;
+                    }
+                    hasAnyHours = true;
+                }
+                if (manualBoth > 0) {
+                    manualText += `${hasAnyHours ? ', ' : ''}Both: ${manualBoth}`;
+                    if (manualBothNote.trim()) {
+                        manualText += ` <span style="color: #666; font-style: italic;">(${manualBothNote})</span>`;
+                    }
+                    hasAnyHours = true;
+                }
+                if (manualHoliday > 0) {
+                    const diffText = manualHolidayDifferential === 'regular' ? '' : ` with ${manualHolidayDifferential} differential`;
+                    manualText += `${hasAnyHours ? ', ' : ''}Holiday (${manualHolidayType}${diffText}): ${manualHoliday}`;
+                    if (manualHolidayNote.trim()) {
+                        manualText += ` <span style="color: #666; font-style: italic;">(${manualHolidayNote})</span>`;
+                    }
+                }
+                
+                breakdown.push(`<div class="day-entry">${manualText}</div>`);
+                
+                // Add manual hours to date breakdown as well
+                const manualRegularPay = manualRegular * hourlyWage;
+                const manualOvernightPay = manualOvernight * hourlyWage * 1.10;
+                const manualOvertimePay = manualOvertime * hourlyWage * 1.25;
+                const manualBothPay = manualBoth * hourlyWage * 1.35;
+                
+                let calculatedManualHolidayPay = 0;
+                if (manualHoliday > 0) {
+                    let baseRate = hourlyWage;
+                    switch(manualHolidayDifferential) {
+                        case 'overnight': baseRate = hourlyWage * 1.10; break;
+                        case 'overtime': baseRate = hourlyWage * 1.25; break;
+                        case 'both': baseRate = hourlyWage * 1.35; break;
+                    }
+                    const holidayMultiplier = manualHolidayType === 'regular' ? 2.00 : 1.30;
+                    calculatedManualHolidayPay = manualHoliday * baseRate * holidayMultiplier;
+                    
+                    if (manualHolidayDifferential === 'overtime' || manualHolidayDifferential === 'both') {
+                        calculatedManualHolidayPay += manualHoliday * hourlyWage * 0.30;
+                    }
+                }
+                
+                const manualTotalPHP = manualRegularPay + manualOvernightPay + manualOvertimePay + manualBothPay + calculatedManualHolidayPay;
+                const manualTotalUSD = manualTotalPHP / window.USD_TO_PHP;
+
+                if (manualTotalPHP > 0) {
+                    dateBreakdown.push({
+                        dateKey: 'manual',
+                        formattedDate: 'Manual Entry',
+                        content: `<div class="day-entry"><strong>Manual Hours Entry</strong><br><strong>Manual Earnings:</strong> ₱${manualTotalPHP.toFixed(2)} / $${manualTotalUSD.toFixed(2)}<br>${manualText.replace('<strong>Manual Hours:</strong><br>', '')}</div>`,
+                        totalPHP: manualTotalPHP,
+                        totalUSD: manualTotalUSD
+                    });
+                }
+            }
+
+            // Calculate totals with corrected holiday pay
+            const regularPay = totalRegularHours * hourlyWage;
+            const overtimePay = totalOvertimeHours * hourlyWage * 1.25;
+            const overnightPay = totalOvernightHours * hourlyWage * 1.10;
+            const bothPay = totalBothHours * hourlyWage * 1.35;
+            
+            const totalPayPHP = regularPay + overtimePay + overnightPay + bothPay + totalHolidayPay;
+            const totalPayUSD = totalPayPHP / window.USD_TO_PHP;
+
+            // Summary for shift breakdown
+            let summary = `
+                <div class="day-entry" style="background: linear-gradient(45deg, #87CEEB, #B0E0E6); color: #333; border-left: none;">
+                    <h4>${agentName} - Pay Period Summary</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                        <div>
+                            <strong>Hours Breakdown:</strong><br>
+                            ${totalRegularHours > 0 ? `Regular Hours: ${totalRegularHours.toFixed(2)} (base rate)<br>` : ''}
+                            ${totalOvertimeHours > 0 ? `Overtime Hours: ${totalOvertimeHours.toFixed(2)} (+25% differential)<br>` : ''}
+                            ${totalOvernightHours > 0 ? `Overnight Hours: ${totalOvernightHours.toFixed(2)} (+10% differential)<br>` : ''}
+                            ${totalBothHours > 0 ? `Overnight + Overtime: ${totalBothHours.toFixed(2)} (+35% differential)<br>` : ''}
+                            ${totalHolidayPay > 0 ? `Holiday Hours: Applied with proper differentials<br>` : ''}
+                            <strong>Total Hours: ${(totalRegularHours + totalOvertimeHours + totalOvernightHours + totalBothHours).toFixed(2)}</strong>
+                        </div>
+                        <div>
+                            <strong>Pay Breakdown:</strong><br>
+                            ${totalRegularHours > 0 ? `Regular Pay: ₱${regularPay.toFixed(2)}<br>` : ''}
+                            ${totalOvertimeHours > 0 ? `Overtime Pay: ₱${overtimePay.toFixed(2)}<br>` : ''}
+                            ${totalOvernightHours > 0 ? `Overnight Pay: ₱${overnightPay.toFixed(2)}<br>` : ''}
+                            ${totalBothHours > 0 ? `Both Differential: ₱${bothPay.toFixed(2)}<br>` : ''}
+                            ${totalHolidayPay > 0 ? `Holiday Pay (Enhanced): ₱${totalHolidayPay.toFixed(2)}<br>` : ''}
+                            <strong>Total PHP: ₱${totalPayPHP.toFixed(2)}</strong><br>
+                            <strong>Total USD: $${totalPayUSD.toFixed(2)}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Summary for date breakdown
+            let dateSummary = `
+                <div class="day-entry" style="background: linear-gradient(45deg, #87CEEB, #B0E0E6); color: #333; border-left: none;">
+                    <h4>${agentName} - Daily Earnings Summary</h4>
+                    <div style="margin-top: 15px;">
+                        <strong>Total Period Earnings:</strong><br>
+                        <div style="font-size: 18px; margin: 10px 0;">
+                            🇵🇭 ₱${totalPayPHP.toFixed(2)} • 🇺🇸 $${totalPayUSD.toFixed(2)}
+                        </div>
+                        <strong>Total Hours: ${(totalRegularHours + totalOvertimeHours + totalOvernightHours + totalBothHours).toFixed(2)}</strong>
+                        ${totalHolidayPay > 0 ? `<br><strong>✅ Holiday pay calculated with proper differentials</strong>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('breakdownContent').innerHTML = summary + breakdown.join('');
+            document.getElementById('dateBreakdownContent').innerHTML = dateSummary + dateBreakdown.map(item => item.content).join('');
+        }
+
+        function determinePayPeriod() {
+            const dates = Object.keys(scheduleData);
+            if (dates.length === 0) return "No dates selected";
+
+            const dateGroups = {};
+            
+            dates.forEach(dateKey => {
+                const [year, month, day] = dateKey.split('-').map(Number);
+                const monthKey = `${year}-${month}`;
+                
+                if (!dateGroups[monthKey]) {
+                    dateGroups[monthKey] = { firstHalf: 0, secondHalf: 0 };
+                }
+                
+                if (day <= 15) {
+                    dateGroups[monthKey].firstHalf++;
+                } else {
+                    dateGroups[monthKey].secondHalf++;
+                }
+            });
+
+            let maxShifts = 0;
+            let primaryMonth = null;
+            let isFirstHalf = true;
+
+            Object.entries(dateGroups).forEach(([monthKey, counts]) => {
+                const totalShifts = counts.firstHalf + counts.secondHalf;
+                if (totalShifts > maxShifts) {
+                    maxShifts = totalShifts;
+                    primaryMonth = monthKey;
+                    isFirstHalf = counts.firstHalf >= counts.secondHalf;
+                }
+            });
+
+            if (!primaryMonth) return "No dates selected";
+
+            const [year, month] = primaryMonth.split('-').map(Number);
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = monthNames[month - 1];
+            
+            if (isFirstHalf) {
+                return `${monthName} ${year} 1st-15th`;
+            } else {
+                const lastDay = getDaysInMonth(year, month);
+                return `${monthName} ${year} 16th-${lastDay}`;
+            }
+        }
+
+        function calculateAndDisplayWages() {
+            const agentName = document.getElementById('agentName').value;
+            const hourlyWage = parseFloat(document.getElementById('hourlyWage').value) || 0;
+
+            if (!agentName.trim()) {
+                alert('Please enter the agent name');
+                return;
+            }
+
+            if (hourlyWage <= 0) {
+                alert('Please enter a valid hourly wage');
+                return;
+            }
+
+            if (Object.keys(scheduleData).length === 0) {
+                const manualRegular = parseFloat(document.getElementById('manualRegular').value) || 0;
+                const manualOvernight = parseFloat(document.getElementById('manualOvernight').value) || 0;
+                const manualOvertime = parseFloat(document.getElementById('manualOvertime').value) || 0;
+                const manualBoth = parseFloat(document.getElementById('manualBoth').value) || 0;
+                const manualHoliday = parseFloat(document.getElementById('manualHoliday').value) || 0;
+                
+                if (manualRegular === 0 && manualOvernight === 0 && manualOvertime === 0 && manualBoth === 0 && manualHoliday === 0) {
+                    alert('Please add some shifts or manual hours to calculate wages');
+                    return;
+                }
+            }
+
+            // Calculate totals (reuse logic from updateCalculations)
+            const manualRegular = parseFloat(document.getElementById('manualRegular').value) || 0;
+            const manualOvernight = parseFloat(document.getElementById('manualOvernight').value) || 0;
+            const manualOvertime = parseFloat(document.getElementById('manualOvertime').value) || 0;
+            const manualBoth = parseFloat(document.getElementById('manualBoth').value) || 0;
+            const manualHoliday = parseFloat(document.getElementById('manualHoliday').value) || 0;
+            const manualHolidayType = document.getElementById('manualHolidayType').value;
+            const manualHolidayDifferential = document.getElementById('manualHolidayDifferential').value;
+
+            const primaryPayPeriod = determinePayPeriod();
+
+            let totalRegularHours = 0;
+            let totalOvertimeHours = 0;
+            let totalOvernightHours = 0;
+            let totalBothHours = 0;
+            let totalHolidayPay = 0;
+
+            const sortedDates = Object.keys(scheduleData).sort();
+            
+            sortedDates.forEach(dateKey => {
+                const data = scheduleData[dateKey];
+                const shiftCalc = calculateShiftHours(data.start, data.end, dateKey, primaryPayPeriod);
+                const { totalHours, paidHours, actualStartTime, actualEndTime, truncated, truncationType } = shiftCalc;
+                
+                if (data.holiday) {
+                    const holidayPayCalc = calculateHolidayPayComponents(paidHours, actualStartTime, actualEndTime, data.holiday.type, hourlyWage);
+                    totalHolidayPay += holidayPayCalc.totalHolidayPay;
+                } else {
+                    const overnightHours = calculateOvernightHours(actualStartTime, actualEndTime, paidHours);
+                    const overtimeHours = Math.max(0, paidHours - 8);
+                    const regularHours = paidHours - overtimeHours;
+                    
+                    const overnightOvertimeHours = Math.min(overnightHours, overtimeHours);
+                    const regularOvernightHours = overnightHours - overnightOvertimeHours;
+                    const regularOvertimeHours = overtimeHours - overnightOvertimeHours;
+                    const finalRegularHours = regularHours - regularOvernightHours;
+
+                    totalRegularHours += finalRegularHours;
+                    totalOvertimeHours += regularOvertimeHours;
+                    totalOvernightHours += regularOvernightHours;
+                    totalBothHours += overnightOvertimeHours;
+                }
+            });
+
+            // Add manual hours
+            totalRegularHours += manualRegular;
+            totalOvernightHours += manualOvernight;
+            totalOvertimeHours += manualOvertime;
+            totalBothHours += manualBoth;
+            
+            // Calculate manual holiday pay with proper differentials
+            if (manualHoliday > 0) {
+                let baseRate = hourlyWage;
+                switch(manualHolidayDifferential) {
+                    case 'overnight': baseRate = hourlyWage * 1.10; break;
+                    case 'overtime': baseRate = hourlyWage * 1.25; break;
+                    case 'both': baseRate = hourlyWage * 1.35; break;
+                }
+                const holidayMultiplier = manualHolidayType === 'regular' ? 2.00 : 1.30;
+                const manualHolidayPay = manualHoliday * baseRate * holidayMultiplier;
+                
+                if (manualHolidayDifferential === 'overtime' || manualHolidayDifferential === 'both') {
+                    totalHolidayPay += manualHolidayPay + (manualHoliday * hourlyWage * 0.30);
+                } else {
+                    totalHolidayPay += manualHolidayPay;
+                }
+            }
+
+            // Calculate totals with corrected holiday pay
+            const regularPay = totalRegularHours * hourlyWage;
+            const overtimePay = totalOvertimeHours * hourlyWage * 1.25;
+            const overnightPay = totalOvernightHours * hourlyWage * 1.10;
+            const bothPay = totalBothHours * hourlyWage * 1.35;
+            
+            const totalPayPHP = regularPay + overtimePay + overnightPay + bothPay + totalHolidayPay;
+            const totalPayUSD = totalPayPHP / window.USD_TO_PHP;
+
+            // Update display
+            document.getElementById('resultAgentName').textContent = agentName;
+            document.getElementById('totalPHP').textContent = totalPayPHP.toFixed(2);
+            document.getElementById('totalUSD').textContent = totalPayUSD.toFixed(2);
+            document.getElementById('payPeriod').textContent = primaryPayPeriod;
+            document.getElementById('wageResults').style.display = 'block';
+
+            // Scroll to results
+            document.getElementById('wageResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize calendar
+        renderCalendar();
+    </script>
+</body>
+</html>
